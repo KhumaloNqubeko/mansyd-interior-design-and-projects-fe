@@ -4,5 +4,8 @@ export const CUSTOMER_ROUTES: Routes = [
   { path: 'profile', loadComponent: () => import('../profile/customer-profile.component').then(m => m.CustomerProfileComponent) },
   { path: 'requests', loadComponent: () => import('../service-requests/customer-service-requests.component').then(m => m.CustomerServiceRequestsComponent) },
   { path: 'quotations', loadComponent: () => import('../quotations/customer-quotations.component').then(m => m.CustomerQuotationsComponent) },
-  { path: 'orders', loadComponent: () => import('../orders/order-list.component').then(m => m.OrderListComponent), data: { scope: 'customer' } }
+  { path: 'orders', loadComponent: () => import('../orders/order-list.component').then(m => m.OrderListComponent), data: { scope: 'customer' } },
+  { path: 'projects', loadComponent: () => import('../projects/project-list.component').then(m => m.ProjectListComponent), data: { scope: 'customer' } },
+  { path: 'billing', loadComponent: () => import('../billing/billing.component').then(m => m.BillingComponent), data: { scope: 'customer' } },
+  { path: 'appointments', loadComponent: () => import('../appointments/appointment-list.component').then(m => m.AppointmentListComponent), data: { scope: 'customer' } }
 ];

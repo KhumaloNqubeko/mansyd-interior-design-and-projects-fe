@@ -34,6 +34,15 @@ import { NotificationService } from '../services/notification.service';
           <a routerLink="/customer/orders" routerLinkActive="active">
             <mat-icon aria-hidden="true">inventory_2</mat-icon> Orders
           </a>
+          <a routerLink="/customer/projects" routerLinkActive="active">
+            <mat-icon aria-hidden="true">timeline</mat-icon> Projects
+          </a>
+          <a routerLink="/customer/appointments" routerLinkActive="active">
+            <mat-icon aria-hidden="true">event</mat-icon> Appointments
+          </a>
+          <a routerLink="/customer/billing" routerLinkActive="active">
+            <mat-icon aria-hidden="true">payments</mat-icon> Billing
+          </a>
         }
         @if (auth.currentUser?.role === 'CARPENTER') {
           <a routerLink="/carpenter/requests" routerLinkActive="active">
@@ -45,8 +54,26 @@ import { NotificationService } from '../services/notification.service';
           <a routerLink="/carpenter/orders" routerLinkActive="active">
             <mat-icon aria-hidden="true">inventory_2</mat-icon> Orders
           </a>
+          <a routerLink="/carpenter/projects" routerLinkActive="active">
+            <mat-icon aria-hidden="true">timeline</mat-icon> Projects
+          </a>
+          <a routerLink="/carpenter/appointments" routerLinkActive="active">
+            <mat-icon aria-hidden="true">event</mat-icon> Appointments
+          </a>
+          <a routerLink="/carpenter/billing" routerLinkActive="active">
+            <mat-icon aria-hidden="true">payments</mat-icon> Billing
+          </a>
+          <a routerLink="/carpenter/inventory" routerLinkActive="active">
+            <mat-icon aria-hidden="true">warehouse</mat-icon> Inventory
+          </a>
+          <a routerLink="/carpenter/expenses" routerLinkActive="active">
+            <mat-icon aria-hidden="true">receipt_long</mat-icon> Expenses
+          </a>
+          <a routerLink="/carpenter/reporting" routerLinkActive="active">
+            <mat-icon aria-hidden="true">monitoring</mat-icon> Reporting
+          </a>
         }
-        <span class="coming-soon">Projects, invoices and payments come next.</span>
+        <span class="coming-soon">Notifications and documents come next.</span>
       </aside>
       <main class="portal-content"><router-outlet /></main>
     </div>
