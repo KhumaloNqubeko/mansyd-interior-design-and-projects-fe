@@ -98,7 +98,6 @@ import { NotificationService } from '../services/notification.service';
             <mat-icon aria-hidden="true">fact_check</mat-icon> Audit logs
           </a>
         }
-        <span class="coming-soon">Deployment/docs hardening remains.</span>
       </aside>
       <main class="portal-content"><router-outlet /></main>
     </div>
