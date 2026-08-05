@@ -21,6 +21,7 @@ export interface Quotation {
   status: QuotationStatus;
   expiryDate: string;
   notes: string;
+  rejectionNotes: string;
   subtotal: number;
   discountTotal: number;
   taxTotal: number;
@@ -35,6 +36,15 @@ export interface QuotationCreateRequest {
   serviceRequestId: string;
   expiryDate: string;
   notes: string;
+}
+
+export interface QuotationUpdateRequest {
+  expiryDate: string;
+  notes: string;
+}
+
+export interface QuotationRejectRequest {
+  rejectionNotes: string;
 }
 
 export interface QuotationItemRequest {

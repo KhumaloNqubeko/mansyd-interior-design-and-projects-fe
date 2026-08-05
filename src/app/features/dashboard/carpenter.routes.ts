@@ -9,5 +9,8 @@ export const CARPENTER_ROUTES: Routes = [
   { path: 'inventory', loadComponent: () => import('../inventory/inventory.component').then(m => m.InventoryComponent) },
   { path: 'expenses', loadComponent: () => import('../expenses/expense-list.component').then(m => m.ExpenseListComponent) },
   { path: 'reporting', loadComponent: () => import('../reporting/reporting-overview.component').then(m => m.ReportingOverviewComponent) },
-  { path: 'appointments', loadComponent: () => import('../appointments/appointment-list.component').then(m => m.AppointmentListComponent), data: { scope: 'carpenter' } }
+  { path: 'appointments', loadComponent: () => import('../appointments/appointment-list.component').then(m => m.AppointmentListComponent), data: { scope: 'carpenter' } },
+  { path: 'notifications', loadComponent: () => import('../notifications/notification-list.component').then(m => m.NotificationListComponent) },
+  { path: 'documents', loadComponent: () => import('../documents/document-list.component').then(m => m.DocumentListComponent), data: { scope: 'carpenter' } },
+  { path: 'audit-logs', loadComponent: () => import('../audit/audit-log-list.component').then(m => m.AuditLogListComponent) }
 ];

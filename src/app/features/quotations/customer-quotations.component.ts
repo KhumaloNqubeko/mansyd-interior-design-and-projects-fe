@@ -30,6 +30,12 @@ import { QuotationApiService } from '../../core/services/quotation-api.service';
                 <span>{{ item.description }} · {{ item.lineTotal | number:'1.2-2' }}</span>
               }
             </div>
+            @if (quote.rejectionNotes) {
+              <div class="dialog-note">
+                <strong>Your rejection notes</strong>
+                <p>{{ quote.rejectionNotes }}</p>
+              </div>
+            }
             <div class="money-grid">
               <span>Subtotal <strong>{{ quote.subtotal | number:'1.2-2' }}</strong></span>
               <span>Tax <strong>{{ quote.taxTotal | number:'1.2-2' }}</strong></span>
@@ -65,7 +71,9 @@ export class CustomerQuotationsComponent implements OnInit {
   }
 
   reject(quote: Quotation): void {
-    this.api.reject(quote.id).subscribe(updated => {
+    const rejectionNotes = prompt('Please add a short note explaining why you are rejecting this quotation:')?.trim();
+    if (rejectionNotes === undefined) return;
+    this.api.reject(quote.id, { rejectionNotes }).subscribe(updated => {
       this.replace(updated);
       this.notifications.success('Quotation rejected.');
     });

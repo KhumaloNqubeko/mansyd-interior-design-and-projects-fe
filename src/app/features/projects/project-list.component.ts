@@ -15,45 +15,69 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
       <div class="page-heading">
         <p class="eyebrow">Projects</p>
         <h1>{{ carpenterMode() ? 'Project delivery' : 'My project timeline' }}</h1>
-        <p class="muted">Projects are created automatically when accepted quotations become orders.</p>
+        <p class="muted">{{ carpenterMode()
+          ? 'Move each accepted order through the delivery steps. The system handles progress and dates.'
+          : 'Follow the delivery progress and timeline updates for your accepted work.' }}</p>
       </div>
 
       <div class="list-stack">
         @for (project of projects(); track project.id) {
-          <article class="work-card quote-card">
+          <article class="work-card project-card-simple">
             <div class="quote-head">
               <div>
                 <strong>{{ project.projectNumber }}</strong>
                 <p>{{ project.orderNumber }} · {{ project.customerName }}</p>
               </div>
-              <span class="status-pill">{{ project.status }} · {{ project.progress }}%</span>
+              <span class="status-pill">{{ statusLabel(project.status) }} · {{ project.progress }}%</span>
             </div>
 
             <div class="progress-track"><span [style.width.%]="project.progress"></span></div>
-            <p class="muted">Planned: {{ project.plannedStartDate || 'Not set' }} to {{ project.plannedCompletionDate || 'Not set' }}</p>
+
+            <div class="project-summary-line">
+              <span>Planned: {{ project.plannedStartDate || 'Not set' }} → {{ project.plannedCompletionDate || 'Not set' }}</span>
+              <span>Started: {{ project.actualStartDate || 'Not yet' }}</span>
+              <span>Completed: {{ project.actualCompletionDate || 'Not yet' }}</span>
+            </div>
             @if (project.notes) { <p>{{ project.notes }}</p> }
 
             @if (carpenterMode()) {
-              <form class="inline-form project-inline" [formGroup]="statusForm" (ngSubmit)="updateStatus(project)" novalidate>
-                <select formControlName="status">@for (status of statuses; track status) { <option [value]="status">{{ status }}</option> }</select>
-                <input type="number" min="0" max="100" formControlName="progress" placeholder="Progress">
-                <input type="date" formControlName="actualCompletionDate">
-                <button type="submit" class="text-button dark">Update status</button>
-              </form>
+              <section class="next-step-panel">
+                <div>
+                  <strong>Next step</strong>
+                  <p class="muted">Choose one valid move. Progress and dates update automatically.</p>
+                </div>
+                <div class="status-step-actions">
+                  @for (status of nextStatuses(project); track status) {
+                    <button type="button" class="primary-button compact" (click)="updateStatus(project, status)">
+                      Move to {{ statusLabel(status) }}
+                    </button>
+                  } @empty {
+                    <span class="muted">This project has no next delivery step.</span>
+                  }
+                </div>
+              </section>
 
-              <form class="inline-form project-dates" [formGroup]="detailsForm" (ngSubmit)="updateDetails(project)" novalidate>
-                <input type="date" formControlName="plannedStartDate">
-                <input type="date" formControlName="plannedCompletionDate">
-                <input formControlName="notes" placeholder="Project notes">
-                <button type="submit" class="text-button dark">Save details</button>
-              </form>
+              <div class="project-secondary-actions">
+                <details (toggle)="prepareDetails(project)">
+                  <summary>Edit plan / notes</summary>
+                  <form class="inline-form project-dates simplified-form" [formGroup]="detailsForm" (ngSubmit)="updateDetails(project)" novalidate>
+                    <label>Planned start <input type="date" formControlName="plannedStartDate"></label>
+                    <label>Planned finish <input type="date" formControlName="plannedCompletionDate"></label>
+                    <label>Notes <input formControlName="notes" placeholder="Internal project notes"></label>
+                    <button type="submit" class="text-button dark">Save</button>
+                  </form>
+                </details>
 
-              <form class="inline-form project-update" [formGroup]="timelineForm" (ngSubmit)="addUpdate(project)" novalidate>
-                <input formControlName="title" placeholder="Update title">
-                <input formControlName="message" placeholder="Timeline message">
-                <button type="submit" class="text-button dark">Add update</button>
-              </form>
-              <app-validation-message [control]="timelineForm.controls.title" label="Update title" />
+                <details>
+                  <summary>Add customer update</summary>
+                  <form class="inline-form project-update simplified-form" [formGroup]="timelineForm" (ngSubmit)="addUpdate(project)" novalidate>
+                    <input formControlName="title" placeholder="Title, e.g. Materials ordered">
+                    <input formControlName="message" placeholder="Short customer-facing update">
+                    <button type="submit" class="text-button dark">Add</button>
+                  </form>
+                  <app-validation-message [control]="timelineForm.controls.title" label="Update title" />
+                </details>
+              </div>
             }
 
             <button type="button" class="text-button dark compact-link" (click)="toggleTimeline(project)">
@@ -90,13 +114,6 @@ export class ProjectListComponent implements OnInit {
   readonly timeline = signal<ProjectTimelineEntry[]>([]);
   readonly selectedProjectId = signal<string | null>(null);
   readonly carpenterMode = signal(false);
-  readonly statuses: ProjectStatus[] = ['CREATED', 'SCHEDULED', 'IN_PROGRESS', 'AWAITING_MATERIALS', 'ON_HOLD',
-    'QUALITY_INSPECTION', 'READY_FOR_DELIVERY', 'DELIVERED', 'INSTALLED', 'COMPLETED', 'CANCELLED'];
-  readonly statusForm = this.fb.nonNullable.group({
-    status: ['IN_PROGRESS' as ProjectStatus, Validators.required],
-    progress: [25, [Validators.required, Validators.min(0), Validators.max(100)]],
-    actualCompletionDate: ['']
-  });
   readonly detailsForm = this.fb.nonNullable.group({
     plannedStartDate: [''],
     plannedCompletionDate: [''],
@@ -112,22 +129,24 @@ export class ProjectListComponent implements OnInit {
     this.load();
   }
 
-  updateStatus(project: Project): void {
-    if (this.statusForm.invalid) { this.statusForm.markAllAsTouched(); return; }
-    const value = this.statusForm.getRawValue();
-    this.api.updateStatus(project.id, { status: value.status, progress: value.progress, actualCompletionDate: value.actualCompletionDate || null })
-      .subscribe(updated => {
-        this.replace(updated);
-        this.notifications.success('Project status updated.');
-      });
+  updateStatus(project: Project, status: ProjectStatus): void {
+    const today = this.today();
+    this.api.updateStatus(project.id, {
+      status,
+      progress: this.progressFor(status),
+      actualCompletionDate: status === 'COMPLETED' ? today : project.actualCompletionDate || null
+    }).subscribe(updated => {
+      this.replace(this.normalizedStatusProject(project, updated, status, today));
+      this.notifications.success('Project status updated.');
+    });
   }
 
   updateDetails(project: Project): void {
     if (this.detailsForm.invalid) { this.detailsForm.markAllAsTouched(); return; }
     const value = this.detailsForm.getRawValue();
     this.api.update(project.id, {
-      plannedStartDate: value.plannedStartDate || null,
-      plannedCompletionDate: value.plannedCompletionDate || null,
+      plannedStartDate: value.plannedStartDate || project.plannedStartDate || null,
+      plannedCompletionDate: value.plannedCompletionDate || project.plannedCompletionDate || null,
       notes: value.notes
     }).subscribe(updated => {
       this.replace(updated);
@@ -154,6 +173,35 @@ export class ProjectListComponent implements OnInit {
     this.api.updates(project.id).subscribe(page => this.timeline.set(page.content));
   }
 
+  prepareDetails(project: Project): void {
+    this.detailsForm.patchValue({
+      plannedStartDate: project.plannedStartDate || '',
+      plannedCompletionDate: project.plannedCompletionDate || '',
+      notes: project.notes || ''
+    });
+  }
+
+  statusLabel(status: ProjectStatus): string {
+    return status.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase());
+  }
+
+  nextStatuses(project: Project): ProjectStatus[] {
+    const transitions: Record<ProjectStatus, ProjectStatus[]> = {
+      CREATED: ['SCHEDULED', 'CANCELLED'],
+      SCHEDULED: ['IN_PROGRESS', 'CANCELLED'],
+      IN_PROGRESS: ['AWAITING_MATERIALS', 'ON_HOLD', 'QUALITY_INSPECTION', 'CANCELLED'],
+      AWAITING_MATERIALS: ['IN_PROGRESS', 'ON_HOLD', 'CANCELLED'],
+      ON_HOLD: ['IN_PROGRESS', 'CANCELLED'],
+      QUALITY_INSPECTION: ['READY_FOR_DELIVERY', 'IN_PROGRESS'],
+      READY_FOR_DELIVERY: ['DELIVERED'],
+      DELIVERED: ['INSTALLED'],
+      INSTALLED: ['COMPLETED'],
+      COMPLETED: [],
+      CANCELLED: []
+    };
+    return transitions[project.status];
+  }
+
   private load(): void {
     const source = this.carpenterMode() ? this.api.all() : this.api.my();
     source.subscribe(page => this.projects.set(page.content));
@@ -161,5 +209,40 @@ export class ProjectListComponent implements OnInit {
 
   private replace(updated: Project): void {
     this.projects.update(items => items.map(item => item.id === updated.id ? updated : item));
+  }
+
+  progressFor(status: ProjectStatus): number {
+    return {
+      CREATED: 0,
+      SCHEDULED: 10,
+      IN_PROGRESS: 25,
+      AWAITING_MATERIALS: 35,
+      ON_HOLD: 35,
+      QUALITY_INSPECTION: 70,
+      READY_FOR_DELIVERY: 80,
+      DELIVERED: 90,
+      INSTALLED: 95,
+      COMPLETED: 100,
+      CANCELLED: 0
+    }[status];
+  }
+
+  private normalizedStatusProject(previous: Project, updated: Project, status: ProjectStatus, today: string): Project {
+    return {
+      ...updated,
+      status,
+      progress: this.progressFor(status),
+      actualStartDate: updated.actualStartDate || previous.actualStartDate || (this.startsWork(status) ? today : null),
+      actualCompletionDate: status === 'COMPLETED' ? (updated.actualCompletionDate || today) : updated.actualCompletionDate
+    };
+  }
+
+  private startsWork(status: ProjectStatus): boolean {
+    return ['IN_PROGRESS', 'AWAITING_MATERIALS', 'ON_HOLD', 'QUALITY_INSPECTION',
+      'READY_FOR_DELIVERY', 'DELIVERED', 'INSTALLED', 'COMPLETED'].includes(status);
+  }
+
+  private today(): string {
+    return new Date().toISOString().slice(0, 10);
   }
 }

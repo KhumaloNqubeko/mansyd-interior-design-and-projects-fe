@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { filter } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { NotificationBadgeService } from '../services/notification-badge.service';
 import { NotificationService } from '../services/notification.service';
 
 @Component({
@@ -43,6 +45,16 @@ import { NotificationService } from '../services/notification.service';
           <a routerLink="/customer/billing" routerLinkActive="active">
             <mat-icon aria-hidden="true">payments</mat-icon> Billing
           </a>
+          <a routerLink="/customer/notifications" routerLinkActive="active">
+            <mat-icon aria-hidden="true">notifications</mat-icon>
+            <span class="nav-label">Notifications</span>
+            @if (notificationBadge.unreadCount() > 0) {
+              <span class="notification-badge" aria-label="Unread notifications">{{ badgeText() }}</span>
+            }
+          </a>
+          <a routerLink="/customer/documents" routerLinkActive="active">
+            <mat-icon aria-hidden="true">folder</mat-icon> Documents
+          </a>
         }
         @if (auth.currentUser?.role === 'CARPENTER') {
           <a routerLink="/carpenter/requests" routerLinkActive="active">
@@ -72,18 +84,45 @@ import { NotificationService } from '../services/notification.service';
           <a routerLink="/carpenter/reporting" routerLinkActive="active">
             <mat-icon aria-hidden="true">monitoring</mat-icon> Reporting
           </a>
+          <a routerLink="/carpenter/notifications" routerLinkActive="active">
+            <mat-icon aria-hidden="true">notifications</mat-icon>
+            <span class="nav-label">Notifications</span>
+            @if (notificationBadge.unreadCount() > 0) {
+              <span class="notification-badge" aria-label="Unread notifications">{{ badgeText() }}</span>
+            }
+          </a>
+          <a routerLink="/carpenter/documents" routerLinkActive="active">
+            <mat-icon aria-hidden="true">folder</mat-icon> Documents
+          </a>
+          <a routerLink="/carpenter/audit-logs" routerLinkActive="active">
+            <mat-icon aria-hidden="true">fact_check</mat-icon> Audit logs
+          </a>
         }
-        <span class="coming-soon">Notifications and documents come next.</span>
+        <span class="coming-soon">Deployment/docs hardening remains.</span>
       </aside>
       <main class="portal-content"><router-outlet /></main>
     </div>
   `
 })
-export class PortalLayoutComponent {
+export class PortalLayoutComponent implements OnInit {
   readonly auth = inject(AuthService);
+  readonly notificationBadge = inject(NotificationBadgeService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
   get homeLink(): string { return this.auth.currentUser?.role === 'CARPENTER' ? '/carpenter' : '/customer'; }
+
+  ngOnInit(): void {
+    this.notificationBadge.refresh();
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(() => this.notificationBadge.refresh());
+  }
+
+  badgeText(): string {
+    const count = this.notificationBadge.unreadCount();
+    return count > 99 ? '99+' : String(count);
+  }
+
   logout(): void {
     this.auth.logout().subscribe({
       next: () => { this.notifications.success('You have signed out.'); void this.router.navigate(['/login']); },

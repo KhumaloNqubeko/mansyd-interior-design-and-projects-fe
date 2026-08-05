@@ -12,6 +12,7 @@ export interface Project {
   progress: number;
   plannedStartDate?: string | null;
   plannedCompletionDate?: string | null;
+  actualStartDate?: string | null;
   actualCompletionDate?: string | null;
   notes: string;
   createdAt: string;
@@ -26,7 +27,7 @@ export interface ProjectUpdateRequest {
 
 export interface ProjectStatusUpdateRequest {
   status: ProjectStatus;
-  progress: number;
+  progress?: number;
   actualCompletionDate?: string | null;
 }
 
