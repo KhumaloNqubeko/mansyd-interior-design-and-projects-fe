@@ -39,6 +39,9 @@ import { NotificationService } from '../services/notification.service';
           <a routerLink="/customer/projects" routerLinkActive="active">
             <mat-icon aria-hidden="true">timeline</mat-icon> Projects
           </a>
+          <a routerLink="/customer/portfolio" routerLinkActive="active">
+            <mat-icon aria-hidden="true">photo_library</mat-icon> Portfolio
+          </a>
           <a routerLink="/customer/appointments" routerLinkActive="active">
             <mat-icon aria-hidden="true">event</mat-icon> Appointments
           </a>
@@ -68,6 +71,9 @@ import { NotificationService } from '../services/notification.service';
           </a>
           <a routerLink="/carpenter/projects" routerLinkActive="active">
             <mat-icon aria-hidden="true">timeline</mat-icon> Projects
+          </a>
+          <a routerLink="/carpenter/portfolio" routerLinkActive="active">
+            <mat-icon aria-hidden="true">photo_library</mat-icon> Portfolio
           </a>
           <a routerLink="/carpenter/appointments" routerLinkActive="active">
             <mat-icon aria-hidden="true">event</mat-icon> Appointments

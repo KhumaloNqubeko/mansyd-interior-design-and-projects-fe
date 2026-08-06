@@ -20,6 +20,24 @@ import { QuotationApiService } from '../../core/services/quotation-api.service';
       }
       <p class="muted">Here is what needs your attention and what is currently happening with your work.</p>
 
+      <section class="dashboard-panel portfolio-carousel-panel">
+        <div class="history-heading">
+          <div>
+            <p class="eyebrow">Showcase</p>
+            <h2>Featured carpenter work</h2>
+          </div>
+          <a class="text-button dark" [routerLink]="portfolioLink()">Browse all</a>
+        </div>
+        <div class="portfolio-carousel" aria-label="Featured portfolio photos">
+          @for (image of featuredPortfolio; track image.src) {
+            <a class="portfolio-slide" [routerLink]="portfolioLink()">
+              <img [src]="image.src" [alt]="image.title" loading="lazy">
+              <span>{{ image.title }}</span>
+            </a>
+          }
+        </div>
+      </section>
+
       <div class="dashboard-metrics">
         <a [routerLink]="projectsLink()">
           <span>Active projects</span>
@@ -128,6 +146,13 @@ export class DashboardComponent implements OnInit {
       link: this.notificationsLink()
     }))
   ]);
+  readonly featuredPortfolio = [
+    { src: '/portfolio/portfolio-06.jpg', title: 'Illuminated kitchen cabinetry' },
+    { src: '/portfolio/portfolio-03.jpg', title: 'Wood slat TV feature wall' },
+    { src: '/portfolio/portfolio-11.jpg', title: 'Modern fitted kitchen' },
+    { src: '/portfolio/portfolio-08.jpg', title: 'Marble TV wall unit' },
+    { src: '/portfolio/portfolio-09.jpg', title: 'Bedroom storage solution' }
+  ];
 
   ngOnInit(): void {
     const projects$ = this.auth.currentUser?.role === 'CARPENTER' ? this.projectsApi.all() : this.projectsApi.my();
@@ -155,5 +180,9 @@ export class DashboardComponent implements OnInit {
 
   notificationsLink(): string {
     return this.isCarpenter() ? '/carpenter/notifications' : '/customer/notifications';
+  }
+
+  portfolioLink(): string {
+    return this.isCarpenter() ? '/carpenter/portfolio' : '/customer/portfolio';
   }
 }

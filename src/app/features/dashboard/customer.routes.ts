@@ -6,6 +6,7 @@ export const CUSTOMER_ROUTES: Routes = [
   { path: 'quotations', loadComponent: () => import('../quotations/customer-quotations.component').then(m => m.CustomerQuotationsComponent) },
   { path: 'orders', loadComponent: () => import('../orders/order-list.component').then(m => m.OrderListComponent), data: { scope: 'customer' } },
   { path: 'projects', loadComponent: () => import('../projects/project-list.component').then(m => m.ProjectListComponent), data: { scope: 'customer' } },
+  { path: 'portfolio', loadComponent: () => import('../portfolio/portfolio.component').then(m => m.PortfolioComponent) },
   { path: 'billing', loadComponent: () => import('../billing/billing.component').then(m => m.BillingComponent), data: { scope: 'customer' } },
   { path: 'appointments', loadComponent: () => import('../appointments/appointment-list.component').then(m => m.AppointmentListComponent), data: { scope: 'customer' } },
   { path: 'notifications', loadComponent: () => import('../notifications/notification-list.component').then(m => m.NotificationListComponent) },
