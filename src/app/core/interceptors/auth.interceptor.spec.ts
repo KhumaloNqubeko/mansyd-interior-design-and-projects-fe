@@ -3,6 +3,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { authInterceptor } from './auth.interceptor';
+import { CsrfTokenStore } from '../auth/csrf-token.store';
 
 describe('authInterceptor', () => {
   afterEach(() => {
@@ -20,8 +21,8 @@ describe('authInterceptor', () => {
   });
 
   it('adds the xsrf token header to unsafe API requests', () => {
-    document.cookie = 'XSRF-TOKEN=test-token; path=/';
     TestBed.configureTestingModule({ providers: [provideHttpClient(withInterceptors([authInterceptor])), provideHttpClientTesting()] });
+    TestBed.inject(CsrfTokenStore).set('test-token');
 
     TestBed.inject(HttpClient).put('http://localhost:8080/api/customers/me', {}).subscribe();
 

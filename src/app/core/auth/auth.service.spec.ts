@@ -22,10 +22,16 @@ describe('AuthService', () => {
     expect(service.currentUser).toEqual(user);
   });
 
+  it('loads the cross-origin csrf token', () => {
+    service.loadCsrfToken().subscribe(token => expect(token).toBe('csrf-value'));
+    const request = http.expectOne(`${environment.apiBaseUrl}/auth/csrf`);
+    expect(request.request.method).toBe('GET');
+    request.flush({ token: 'csrf-value' });
+  });
+
   it('clears state when session restoration is unauthorized', () => {
     service.loadSession().subscribe(result => expect(result).toBeNull());
     http.expectOne(`${environment.apiBaseUrl}/auth/session`).flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(service.currentUser).toBeNull();
   });
 });
-

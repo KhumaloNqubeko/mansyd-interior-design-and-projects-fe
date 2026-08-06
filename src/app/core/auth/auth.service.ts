@@ -3,10 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CurrentUser, LoginRequest, RegistrationRequest, SessionResponse, UserRole } from '../models/auth.models';
+import { CsrfTokenStore } from './csrf-token.store';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly csrfToken = inject(CsrfTokenStore);
   private readonly userState = new BehaviorSubject<CurrentUser | null>(null);
   readonly currentUser$ = this.userState.asObservable();
   readonly isAuthenticated$ = this.currentUser$.pipe(map(user => user !== null));
@@ -14,6 +16,13 @@ export class AuthService {
   private readonly url = `${environment.apiBaseUrl}/auth`;
 
   get currentUser(): CurrentUser | null { return this.userState.value; }
+
+  loadCsrfToken(): Observable<string> {
+    return this.http.get<{ token: string }>(`${this.url}/csrf`).pipe(
+      map(response => response.token),
+      tap(token => this.csrfToken.set(token))
+    );
+  }
 
   login(request: LoginRequest): Observable<SessionResponse> {
     return this.http.post<SessionResponse>(`${this.url}/login`, request).pipe(tap(user => this.userState.next(user)));
@@ -37,4 +46,3 @@ export class AuthService {
 
   clearSession(): void { this.userState.next(null); }
 }
-
