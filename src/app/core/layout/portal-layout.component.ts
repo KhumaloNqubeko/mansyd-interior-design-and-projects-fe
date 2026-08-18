@@ -81,15 +81,6 @@ import { NotificationService } from '../services/notification.service';
           <a routerLink="/carpenter/billing" routerLinkActive="active">
             <mat-icon aria-hidden="true">payments</mat-icon> Billing
           </a>
-          <a routerLink="/carpenter/inventory" routerLinkActive="active">
-            <mat-icon aria-hidden="true">warehouse</mat-icon> Inventory
-          </a>
-          <a routerLink="/carpenter/expenses" routerLinkActive="active">
-            <mat-icon aria-hidden="true">receipt_long</mat-icon> Expenses
-          </a>
-          <a routerLink="/carpenter/reporting" routerLinkActive="active">
-            <mat-icon aria-hidden="true">monitoring</mat-icon> Reporting
-          </a>
           <a routerLink="/carpenter/notifications" routerLinkActive="active">
             <mat-icon aria-hidden="true">notifications</mat-icon>
             <span class="nav-label">Notifications</span>
