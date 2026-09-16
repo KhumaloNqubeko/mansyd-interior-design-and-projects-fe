@@ -50,7 +50,7 @@ import { QuotationApiService } from '../../core/services/quotation-api.service';
             @if (quote.orderId) { <p class="muted">Order created from this quotation.</p> }
           </article>
         } @empty {
-          <div class="empty-state"><strong>No quotations yet</strong><span>Submitted carpenter quotations will appear here.</span></div>
+          <div class="empty-state"><strong>No quotations yet</strong><span>Submitted carpentry quotations will appear here.</span></div>
         }
       </div>
     </section>

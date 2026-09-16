@@ -19,7 +19,7 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
       <div class="page-heading">
         <p class="eyebrow">Billing</p>
         <h1>{{ carpenterMode() ? 'Invoices and payments' : 'My invoices and payments' }}</h1>
-        <p class="muted">Invoices are issued by the carpenter; customer payments wait for review before balances update.</p>
+        <p class="muted">Invoices are issued by the carpentry team; customer payments wait for review before balances update.</p>
       </div>
 
       @if (carpenterMode()) {

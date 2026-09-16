@@ -14,8 +14,8 @@ export class ValidationMessageComponent {
     if (errors?.['required']) return `${this.label()} is required.`;
     if (errors?.['email']) return 'Enter a valid email address.';
     if (errors?.['minlength']) return `${this.label()} is too short.`;
+    if (errors?.['maxlength']) return `${this.label()} is too long.`;
     if (errors?.['pattern']) return `${this.label()} does not meet the required format.`;
     return `${this.label()} is invalid.`;
   }
 }
-

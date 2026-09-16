@@ -13,7 +13,7 @@ import { NotificationService } from '../services/notification.service';
   template: `
     <div class="portal-shell">
       <header class="topbar">
-        <a class="brand brand-inverse" [routerLink]="homeLink"><span class="brand-mark">CB</span><span>Carpenter Business</span></a>
+        <a class="brand brand-inverse" [routerLink]="homeLink"><span class="brand-mark">CB</span><span>Carpentry Business</span></a>
         <div class="user-area">
           @if (auth.currentUser$ | async; as user) { <span>{{ user.displayName }}</span> }
           <button type="button" class="text-button" (click)="logout()">Sign out</button>

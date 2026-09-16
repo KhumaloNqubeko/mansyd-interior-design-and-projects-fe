@@ -32,6 +32,15 @@ export class AuthService {
     return this.http.post<SessionResponse>(`${this.url}/register`, request).pipe(tap(user => this.userState.next(user)));
   }
 
+  sendEmailVerification(email: string, phoneNumber: string): Observable<void> {
+    return this.http.post<void>(`${this.url}/email-verifications`, { email, phoneNumber });
+  }
+
+  verifyEmailCode(email: string, code: string): Observable<string> {
+    return this.http.post<{ verificationToken: string }>(`${this.url}/email-verifications/verify`, { email, code })
+      .pipe(map(response => response.verificationToken));
+  }
+
   logout(): Observable<void> {
     return this.http.post<void>(`${this.url}/logout`, {}).pipe(tap(() => this.clearSession()));
   }

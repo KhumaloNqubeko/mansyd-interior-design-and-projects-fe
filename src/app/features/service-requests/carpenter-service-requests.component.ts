@@ -10,7 +10,7 @@ import { ServiceRequestApiService } from '../../core/services/service-request-ap
   template: `
     <section class="panel-page">
       <div class="page-heading">
-        <p class="eyebrow">Carpenter queue</p>
+        <p class="eyebrow">Carpentry queue</p>
         <h1>Service requests</h1>
         <p class="muted">Review submitted work and move requests through the early workflow.</p>
       </div>

@@ -15,7 +15,7 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
       <div class="page-heading">
         <p class="eyebrow">Requests</p>
         <h1>My service requests</h1>
-        <p class="muted">Submit work details and track the carpenter's review status.</p>
+        <p class="muted">Submit work details and track the carpentry team's review status.</p>
       </div>
 
       <div class="requests-layout">
@@ -26,10 +26,20 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
           </div>
           <div class="form-grid">
             <div class="full">
-              <label for="title">Title</label>
-              <input id="title" formControlName="title" placeholder="e.g. Bedroom cupboards">
-              <app-validation-message [control]="form.controls.title" label="Title" />
+              <label for="titleChoice">Project type</label>
+              <select id="titleChoice" formControlName="titleChoice">
+                <option value="">Select a project type</option>
+                @for (title of projectTypes; track title) { <option [value]="title">{{ title }}</option> }
+              </select>
+              <app-validation-message [control]="form.controls.titleChoice" label="Project type" />
             </div>
+            @if (form.controls.titleChoice.value === 'Other') {
+              <div class="full">
+                <label for="customTitle">Special requirement</label>
+                <input id="customTitle" formControlName="customTitle" placeholder="Describe the type of work">
+                <app-validation-message [control]="form.controls.customTitle" label="Special requirement" />
+              </div>
+            }
             <div class="full">
               <label for="description">Description</label>
               <textarea id="description" formControlName="description" placeholder="Share dimensions, materials, timing, and anything useful for quoting."></textarea>
@@ -84,8 +94,10 @@ export class CustomerServiceRequestsComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   readonly requests = signal<ServiceRequest[]>([]);
   readonly saving = signal(false);
+  readonly projectTypes = ['Kitchen cabinetry', 'Built-in cupboards', 'Custom furniture', 'Doors and frames', 'Shelving and storage', 'Repairs and alterations', 'Other'];
   readonly form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.maxLength(140)]],
+    titleChoice: ['', Validators.required],
+    customTitle: ['', Validators.maxLength(140)],
     description: ['', [Validators.required, Validators.maxLength(4000)]],
     preferredContactMethod: ['', [Validators.required, Validators.maxLength(30)]],
     siteAddress: ['', [Validators.required, Validators.maxLength(300)]]
@@ -95,10 +107,22 @@ export class CustomerServiceRequestsComponent implements OnInit {
 
   submit(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    const value = this.form.getRawValue();
+    if (value.titleChoice === 'Other' && !value.customTitle.trim()) {
+      this.form.controls.customTitle.setErrors({ required: true });
+      this.form.controls.customTitle.markAsTouched();
+      return;
+    }
     this.saving.set(true);
-    this.api.create(this.form.getRawValue()).pipe(finalize(() => this.saving.set(false))).subscribe(() => {
+    const request = {
+      title: value.titleChoice === 'Other' ? value.customTitle.trim() : value.titleChoice,
+      description: value.description,
+      preferredContactMethod: value.preferredContactMethod,
+      siteAddress: value.siteAddress
+    };
+    this.api.create(request).pipe(finalize(() => this.saving.set(false))).subscribe(() => {
       this.notifications.success('Service request submitted.');
-      this.form.reset();
+      this.form.reset({ titleChoice: '', customTitle: '', description: '', preferredContactMethod: '', siteAddress: '' });
       this.load();
     });
   }

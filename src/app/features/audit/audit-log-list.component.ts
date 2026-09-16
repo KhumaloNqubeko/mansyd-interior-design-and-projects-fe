@@ -26,7 +26,7 @@ import { AuditApiService } from '../../core/services/audit-api.service';
             <input id="entityId" formControlName="entityId" placeholder="Optional UUID">
           </div>
         </div>
-        <button class="primary-button" type="submit">Apply filters</button>
+        <button class="primary-button" type="submit" style="margin-bottom: 1rem;">Apply filters</button>
         <button class="primary-button compact muted-button" type="button" (click)="clearFilters()">Clear</button>
       </form>
 

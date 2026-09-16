@@ -3,9 +3,11 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { AppNotification } from '../../core/models/notification.models';
+import { CustomerProfile } from '../../core/models/customer.models';
 import { Project } from '../../core/models/project.models';
 import { Quotation } from '../../core/models/quotation.models';
 import { NotificationApiService } from '../../core/services/notification-api.service';
+import { CustomerApiService } from '../../core/services/customer-api.service';
 import { ProjectApiService } from '../../core/services/project-api.service';
 import { QuotationApiService } from '../../core/services/quotation-api.service';
 
@@ -24,7 +26,7 @@ import { QuotationApiService } from '../../core/services/quotation-api.service';
         <div class="history-heading">
           <div>
             <p class="eyebrow">Showcase</p>
-            <h2>Featured carpenter work</h2>
+            <h2>Featured carpentry work</h2>
           </div>
           <a class="text-button dark" [routerLink]="portfolioLink()">Browse all</a>
         </div>
@@ -52,6 +54,29 @@ import { QuotationApiService } from '../../core/services/quotation-api.service';
           <strong>{{ unreadNotifications().length }}</strong>
         </a>
       </div>
+
+      @if (isCarpenter()) {
+        <section class="dashboard-panel">
+          <div class="history-heading">
+            <div>
+              <p class="eyebrow">Clients</p>
+              <h2>Client contact details</h2>
+            </div>
+            <span class="status-pill">{{ customers().length }}</span>
+          </div>
+          <div class="dashboard-list">
+            @for (customer of customers(); track customer.id) {
+              <div class="client-contact">
+                <strong>{{ customer.fullName }}</strong>
+                <span><a [href]="'tel:' + customer.phoneNumber">{{ customer.phoneNumber }}</a> · <a [href]="'mailto:' + customer.email">{{ customer.email }}</a></span>
+                <span>{{ customer.addressLine1 }}{{ customer.addressLine2 ? ', ' + customer.addressLine2 : '' }}, {{ customer.city }} {{ customer.postalCode }}</span>
+              </div>
+            } @empty {
+              <div class="empty-state compact-empty"><strong>No clients yet</strong><span>Registered client contact details will appear here.</span></div>
+            }
+          </div>
+        </section>
+      }
 
       @if (attentionItems().length) {
         <section class="dashboard-panel">
@@ -120,11 +145,13 @@ export class DashboardComponent implements OnInit {
   private readonly projectsApi = inject(ProjectApiService);
   private readonly quotationsApi = inject(QuotationApiService);
   private readonly notificationsApi = inject(NotificationApiService);
+  private readonly customersApi = inject(CustomerApiService);
 
   readonly loading = signal(true);
   readonly projects = signal<Project[]>([]);
   readonly quotations = signal<Quotation[]>([]);
   readonly notifications = signal<AppNotification[]>([]);
+  readonly customers = signal<CustomerProfile[]>([]);
   readonly isCarpenter = computed(() => this.auth.currentUser?.role === 'CARPENTER');
 
   readonly activeProjects = computed(() => this.projects().filter(project =>
@@ -164,6 +191,9 @@ export class DashboardComponent implements OnInit {
     });
     quotations$.subscribe(page => this.quotations.set(page.content));
     this.notificationsApi.notifications().subscribe(page => this.notifications.set(page.content));
+    if (this.isCarpenter()) {
+      this.customersApi.list(0, 100).subscribe(page => this.customers.set(page.content));
+    }
   }
 
   statusLabel(status: Project['status']): string {

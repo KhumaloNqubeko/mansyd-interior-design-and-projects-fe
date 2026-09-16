@@ -31,7 +31,7 @@ type PortfolioImage = {
       @if (isCarpenter()) {
         <form class="work-card portfolio-upload" [formGroup]="uploadForm" (ngSubmit)="upload(fileInput)" novalidate>
           <div class="section-kicker">
-            <span>Carpenter tools</span>
+            <span>Carpentry tools</span>
             <strong>Add work to the showcase</strong>
           </div>
           <div class="portfolio-upload-grid">

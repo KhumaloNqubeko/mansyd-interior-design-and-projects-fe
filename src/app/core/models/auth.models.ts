@@ -21,8 +21,8 @@ export interface RegistrationRequest {
   email: string;
   phoneNumber: string;
   password: string;
+  emailVerificationToken: string;
   address: AddressRequest;
 }
 
 export type SessionResponse = CurrentUser;
-
