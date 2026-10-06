@@ -3,3 +3,10 @@
 /.angular
 npm-debug.log
 yarn-error.log
+// Generated build output and local Android settings
+mobile/src/api-config.ts
+android/.gradle/
+android/local.properties
+android/**/build/
+*.jks
+*.keystore
