@@ -11,7 +11,7 @@ export class AuditApiService {
   private readonly url = `${environment.apiBaseUrl}/audit-logs`;
 
   logs(filters: { entityType?: string; entityId?: string } = {}): Observable<PageResponse<AuditLog>> {
-    let params = new HttpParams();
+    let params = new HttpParams().append('sort', 'createdAt,desc').append('sort', 'id,desc');
     if (filters.entityType) params = params.set('entityType', filters.entityType);
     if (filters.entityId) params = params.set('entityId', filters.entityId);
     return this.http.get<PageResponse<AuditLog>>(this.url, { params });
