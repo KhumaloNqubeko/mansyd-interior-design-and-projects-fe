@@ -15,7 +15,7 @@ export class PaymentApiService {
   }
 
   all(page = 0, size = 20): Observable<PageResponse<Payment>> {
-    return this.http.get<PageResponse<Payment>>(`${this.url}?page=${page}&size=${size}`);
+    return this.http.get<PageResponse<Payment>>(`${this.url}?page=${page}&size=${size}&sort=createdAt,desc`);
   }
 
   my(page = 0, size = 20): Observable<PageResponse<Payment>> {

@@ -15,16 +15,33 @@
             "outputPath": "dist/carpenter-business-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
-            "assets": [{ "glob": "**/*", "input": "public" }],
-            "styles": ["src/styles.css"]
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "750kB", "maximumError": "1MB" },
-                { "type": "anyComponentStyle", "maximumWarning": "6kB", "maximumError": "10kB" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "750kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kB",
+                  "maximumError": "10kB"
+                }
               ],
               "outputHashing": "all"
             },
@@ -32,10 +49,12 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
-              "fileReplacements": [{
-                "replace": "src/environments/environment.ts",
-                "with": "src/environments/environment.development.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -43,18 +62,130 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": { "buildTarget": "carpenter-business-frontend:build:production" },
-            "development": { "buildTarget": "carpenter-business-frontend:build:development" }
+            "production": {
+              "buildTarget": "carpenter-business-frontend:build:production"
+            },
+            "development": {
+              "buildTarget": "carpenter-business-frontend:build:development"
+            }
           },
           "defaultConfiguration": "development"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": ["zone.js", "zone.js/testing"],
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "tsConfig": "tsconfig.spec.json",
-            "assets": [{ "glob": "**/*", "input": "public" }],
-            "styles": ["src/styles.css"]
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css"
+            ]
+          }
+        }
+      }
+    },
+    "mansyd-mobile": {
+      "projectType": "application",
+      "root": "mobile",
+      "sourceRoot": "mobile/src",
+      "prefix": "mobile",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/mansyd-mobile",
+            "index": "mobile/src/index.html",
+            "browser": "mobile/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "mobile/tsconfig.app.json",
+            "styles": [
+              "src/styles.css",
+              "mobile/src/styles.css"
+            ],
+            "assets": [
+              {
+                "input": "public",
+                "glob": "**/*"
+              }
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1MB",
+                  "maximumError": "1.5MB"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "with": "mobile/src/environment.ts",
+                  "replace": "src/environments/environment.ts"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "with": "mobile/src/api-config.development.ts",
+                  "replace": "mobile/src/api-config.ts"
+                },
+                {
+                  "with": "mobile/src/environment.ts",
+                  "replace": "src/environments/environment.ts"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "mansyd-mobile:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "mobile/tsconfig.spec.json",
+            "styles": [
+              "src/styles.css",
+              "mobile/src/styles.css"
+            ],
+            "assets": [
+              {
+                "input": "public",
+                "glob": "**/*"
+              }
+            ],
+            "fileReplacements": [
+              {
+                "with": "mobile/src/environment.ts",
+                "replace": "src/environments/environment.ts"
+              }
+            ]
           }
         }
       }
@@ -64,4 +195,3 @@
     "analytics": "4535ca66-6fc4-4cd8-bd0f-9411feef9001"
   }
 }
-

@@ -12,7 +12,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
           <span>Carpentry Business</span>
         </a>
         <nav class="public-nav" aria-label="Account navigation">
-          <a class="public-login-link" routerLink="/login">Sign in</a>
+          <a class="public-login-link" routerLink="/admin">Admin portal</a><a class="public-login-link" routerLink="/login">Sign in</a>
           <a class="public-register-link" routerLink="/register">Create account</a>
         </nav>
       </header>

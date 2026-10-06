@@ -1,7 +1,9 @@
+import { ProjectConversationComponent } from './project-conversation.component';
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Project, ProjectStatus, ProjectTimelineEntry } from '../../core/models/project.models';
 import { NotificationService } from '../../core/services/notification.service';
 import { ProjectApiService } from '../../core/services/project-api.service';
@@ -9,7 +11,7 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
 
 @Component({
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule, ValidationMessageComponent],
+  imports: [DatePipe, ReactiveFormsModule, ValidationMessageComponent, ProjectConversationComponent, RouterLink],
   template: `
     <section class="panel-page">
       <div class="page-heading">
@@ -39,8 +41,20 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
               <span>Completed: {{ project.actualCompletionDate || 'Not yet' }}</span>
             </div>
             @if (project.notes) { <p>{{ project.notes }}</p> }
+            @if (mobileDetail) { <a class="primary-button compact" [routerLink]="['/customer/projects', project.id]">Conversation, photos & completion review</a> }
 
             @if (carpenterMode()) {
+              @if (project.status === 'INSTALLED') {
+                <section class="completion-review-panel">
+                  <strong>Customer completion review</strong>
+                  @if (project.completionReviewStatus === 'PENDING_REVIEW') { <p>Waiting for the customer to confirm the work or report an issue.</p> }
+                  @else if (project.completionReviewStatus === 'ISSUE_REPORTED') { <p>The customer reported an issue. Review their feedback below, resolve it, then request another review.</p> }
+                  @else { <p>Send the installed work to the customer for confirmation.</p> }
+                  @if (project.completionReviewStatus !== 'PENDING_REVIEW') { <button type="button" class="primary-button compact" (click)="requestReview(project)" [disabled]="reviewBusy()">Request customer review</button> }
+                </section>
+              }
+              @if (project.customerConfirmedAt) { <p>Customer confirmed completion {{ project.customerConfirmedAt | date:'medium' }}.</p> }
+              <app-project-conversation [project]="project" />
               <section class="next-step-panel">
                 <div>
                   <strong>Next step</strong>
@@ -106,10 +120,12 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
   `
 })
 export class ProjectListComponent implements OnInit {
+  get mobileDetail(): boolean { return this.route.snapshot.data['mobileDetail'] === true; }
   private readonly api = inject(ProjectApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);
+  readonly reviewBusy = signal(false);
   readonly projects = signal<Project[]>([]);
   readonly timeline = signal<ProjectTimelineEntry[]>([]);
   readonly selectedProjectId = signal<string | null>(null);
@@ -129,6 +145,13 @@ export class ProjectListComponent implements OnInit {
     this.load();
   }
 
+  requestReview(project: Project): void {
+    if (this.reviewBusy()) return;
+    this.reviewBusy.set(true);
+    this.api.requestCompletionReview(project.id).subscribe({ next: updated => {
+      this.replace(updated); this.reviewBusy.set(false); this.notifications.success('Customer completion review requested.');
+    }, error: () => this.reviewBusy.set(false) });
+  }
   updateStatus(project: Project, status: ProjectStatus): void {
     const today = this.today();
     this.api.updateStatus(project.id, {
@@ -195,7 +218,7 @@ export class ProjectListComponent implements OnInit {
       QUALITY_INSPECTION: ['READY_FOR_DELIVERY', 'IN_PROGRESS'],
       READY_FOR_DELIVERY: ['DELIVERED'],
       DELIVERED: ['INSTALLED'],
-      INSTALLED: ['COMPLETED'],
+      INSTALLED: [],
       COMPLETED: [],
       CANCELLED: []
     };

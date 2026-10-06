@@ -19,7 +19,7 @@ export class ServiceRequestApiService {
   }
 
   all(page = 0, size = 20): Observable<PageResponse<ServiceRequest>> {
-    return this.http.get<PageResponse<ServiceRequest>>(`${this.url}?page=${page}&size=${size}`);
+    return this.http.get<PageResponse<ServiceRequest>>(`${this.url}?page=${page}&size=${size}&sort=createdAt,desc`);
   }
 
   get(id: string): Observable<ServiceRequest> {

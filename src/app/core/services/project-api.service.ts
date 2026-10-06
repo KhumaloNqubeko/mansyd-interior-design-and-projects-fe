@@ -18,6 +18,9 @@ export class ProjectApiService {
     return this.http.get<PageResponse<Project>>(`${this.url}/my?page=${page}&size=${size}`);
   }
 
+  requestCompletionReview(id: string): Observable<Project> {
+    return this.http.post<Project>(`${this.url}/${id}/completion-review`, {});
+  }
   update(id: string, request: ProjectUpdateRequest): Observable<Project> {
     return this.http.put<Project>(`${this.url}/${id}`, request);
   }

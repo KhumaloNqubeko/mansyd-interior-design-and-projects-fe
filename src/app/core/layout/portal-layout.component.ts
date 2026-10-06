@@ -13,7 +13,7 @@ import { NotificationService } from '../services/notification.service';
   template: `
     <div class="portal-shell">
       <header class="topbar">
-        <a class="brand brand-inverse" [routerLink]="homeLink"><span class="brand-mark">CB</span><span>Carpentry Business</span></a>
+        <a class="brand brand-inverse" [routerLink]="homeLink"><span class="brand-mark">CB</span><span>{{ auth.currentUser?.role === 'CARPENTER' ? 'Mansyd Backoffice' : 'Mansyd' }}</span></a>
         <div class="user-area">
           @if (auth.currentUser$ | async; as user) { <span>{{ user.displayName }}</span> }
           <button type="button" class="text-button" (click)="logout()">Sign out</button>
@@ -60,38 +60,38 @@ import { NotificationService } from '../services/notification.service';
           </a>
         }
         @if (auth.currentUser?.role === 'CARPENTER') {
-          <a routerLink="/carpenter/requests" routerLinkActive="active">
+          <p class="eyebrow">Business management</p><a routerLink="/admin/customers" routerLinkActive="active"><mat-icon aria-hidden="true">people</mat-icon> Customers</a><a routerLink="/admin/suppliers" routerLinkActive="active"><mat-icon aria-hidden="true">local_shipping</mat-icon> Suppliers</a><a routerLink="/admin/requests" routerLinkActive="active">
             <mat-icon aria-hidden="true">assignment</mat-icon> Requests
           </a>
-          <a routerLink="/carpenter/quotations" routerLinkActive="active">
+          <a routerLink="/admin/quotations" routerLinkActive="active">
             <mat-icon aria-hidden="true">request_quote</mat-icon> Quotations
           </a>
-          <a routerLink="/carpenter/orders" routerLinkActive="active">
+          <a routerLink="/admin/orders" routerLinkActive="active">
             <mat-icon aria-hidden="true">inventory_2</mat-icon> Orders
           </a>
-          <a routerLink="/carpenter/projects" routerLinkActive="active">
+          <a routerLink="/admin/projects" routerLinkActive="active">
             <mat-icon aria-hidden="true">timeline</mat-icon> Projects
           </a>
-          <a routerLink="/carpenter/portfolio" routerLinkActive="active">
+          <a routerLink="/admin/portfolio" routerLinkActive="active">
             <mat-icon aria-hidden="true">photo_library</mat-icon> Portfolio
           </a>
-          <a routerLink="/carpenter/appointments" routerLinkActive="active">
+          <a routerLink="/admin/appointments" routerLinkActive="active">
             <mat-icon aria-hidden="true">event</mat-icon> Appointments
           </a>
-          <a routerLink="/carpenter/billing" routerLinkActive="active">
+          <a routerLink="/admin/billing" routerLinkActive="active">
             <mat-icon aria-hidden="true">payments</mat-icon> Billing
           </a>
-          <a routerLink="/carpenter/notifications" routerLinkActive="active">
+          <a routerLink="/admin/notifications" routerLinkActive="active">
             <mat-icon aria-hidden="true">notifications</mat-icon>
             <span class="nav-label">Notifications</span>
             @if (notificationBadge.unreadCount() > 0) {
               <span class="notification-badge" aria-label="Unread notifications">{{ badgeText() }}</span>
             }
           </a>
-          <a routerLink="/carpenter/documents" routerLinkActive="active">
+          <a routerLink="/admin/documents" routerLinkActive="active">
             <mat-icon aria-hidden="true">folder</mat-icon> Documents
           </a>
-          <a routerLink="/carpenter/audit-logs" routerLinkActive="active">
+          <a routerLink="/admin/audit-logs" routerLinkActive="active">
             <mat-icon aria-hidden="true">fact_check</mat-icon> Audit logs
           </a>
         }
@@ -105,7 +105,7 @@ export class PortalLayoutComponent implements OnInit {
   readonly notificationBadge = inject(NotificationBadgeService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
-  get homeLink(): string { return this.auth.currentUser?.role === 'CARPENTER' ? '/carpenter' : '/customer'; }
+  get homeLink(): string { return this.auth.currentUser?.role === 'CARPENTER' ? '/admin' : '/customer'; }
 
   ngOnInit(): void {
     this.notificationBadge.refresh();

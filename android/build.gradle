@@ -1,0 +1,74 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath 'com.google.gms:google-services:4.4.4'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apply from: "variables.gradle"
+
+// OneDrive can turn generated files into cloud reparse points while Gradle
+// snapshots them. Keep every module's disposable output in Gradle's local cache.
+def workspaceId = Integer.toHexString(rootProject.projectDir.canonicalPath.hashCode())
+def nativeBuildRoot = providers.gradleProperty('mansyd.buildRoot')
+    .map { rootProject.file(it) }
+    .getOrElse(new File(gradle.gradleUserHomeDir, "mansyd-builds/${workspaceId}"))
+
+allprojects {
+    def moduleDirectory = project == rootProject ? 'root' : project.path.substring(1).replace(':', '/')
+    layout.buildDirectory.set(new File(nativeBuildRoot, moduleDirectory))
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+tasks.register('printDebugApkPath') {
+    doLast {
+        println project(':app').layout.buildDirectory.file('outputs/apk/debug/app-debug.apk').get().asFile
+    }
+}
+
+project(':app').afterEvaluate { appProject ->
+    def sourceAssets = new File(appProject.projectDir, 'src/main/assets')
+    def stagedAssets = new File(nativeBuildRoot, 'staged-assets')
+    def prepareAssets = appProject.tasks.register('prepareMansydAssets') {
+        // Java's Gradle snapshotter rejects OneDrive cloud reparse points even
+        // when their bytes are readable. Stream them to ordinary local files.
+        doNotTrackState('Refresh generated Capacitor assets outside OneDrive')
+        doLast {
+            if (!stagedAssets.canonicalPath.startsWith(nativeBuildRoot.canonicalPath + File.separator)) {
+                throw new GradleException('Asset staging directory must stay inside the local build cache')
+            }
+            appProject.delete(stagedAssets)
+            def copyFiles
+            copyFiles = { File source, File destination ->
+                if (source.isDirectory()) {
+                    destination.mkdirs()
+                    source.listFiles()?.each { child -> copyFiles(child, new File(destination, child.name)) }
+                } else {
+                    destination.parentFile.mkdirs()
+                    source.withInputStream { input -> destination.withOutputStream { output -> input.transferTo(output) } }
+                    destination.setLastModified(source.lastModified())
+                }
+            }
+            copyFiles(sourceAssets, stagedAssets)
+        }
+    }
+    appProject.extensions.getByName('android').sourceSets.getByName('main').assets.setSrcDirs([stagedAssets])
+    appProject.tasks.named('preBuild').configure { dependsOn(prepareAssets) }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

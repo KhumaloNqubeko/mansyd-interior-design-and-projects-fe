@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "640459339816",
+    "project_id": "mansyd-app",
+    "storage_bucket": "mansyd-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640459339816:android:9d4874412329f2c9629d1d",
+        "android_client_info": {
+          "package_name": "za.co.mansyd.projects"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYYxhMdKpHj97R3rIqyiz9yUNViPUQeKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -48,9 +48,9 @@ export class LoginComponent {
         this.notifications.success(`Welcome, ${user.displayName}.`);
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         const safeReturnUrl = returnUrl?.startsWith('/') && !returnUrl.startsWith('//') ? returnUrl : null;
-        void this.router.navigateByUrl(safeReturnUrl ?? (user.role === 'CARPENTER' ? '/carpenter' : '/customer'));
-      }
+        void this.router.navigateByUrl(safeReturnUrl ?? (user.role === 'CARPENTER' ? '/admin' : '/customer'));
+      },
+      error: () => { /* The API interceptor presents the error; finalize releases the button. */ }
     });
   }
 }
-

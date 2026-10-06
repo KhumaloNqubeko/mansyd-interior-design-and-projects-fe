@@ -201,18 +201,18 @@ export class DashboardComponent implements OnInit {
   }
 
   projectsLink(): string {
-    return this.isCarpenter() ? '/carpenter/projects' : '/customer/projects';
+    return this.isCarpenter() ? '/admin/projects' : '/customer/projects';
   }
 
   quotationsLink(): string {
-    return this.isCarpenter() ? '/carpenter/quotations' : '/customer/quotations';
+    return this.isCarpenter() ? '/admin/quotations' : '/customer/quotations';
   }
 
   notificationsLink(): string {
-    return this.isCarpenter() ? '/carpenter/notifications' : '/customer/notifications';
+    return this.isCarpenter() ? '/admin/notifications' : '/customer/notifications';
   }
 
   portfolioLink(): string {
-    return this.isCarpenter() ? '/carpenter/portfolio' : '/customer/portfolio';
+    return this.isCarpenter() ? '/admin/portfolio' : '/customer/portfolio';
   }
 }

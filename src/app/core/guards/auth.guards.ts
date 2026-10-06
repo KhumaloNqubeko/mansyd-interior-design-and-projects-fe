@@ -22,6 +22,6 @@ export const customerGuard = roleGuard('CUSTOMER');
 export const loginGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  return auth.currentUser$.pipe(take(1), map(user => !user ? true : router.createUrlTree([user.role === 'CARPENTER' ? '/carpenter' : '/customer'])));
+  return auth.currentUser$.pipe(take(1), map(user => !user ? true : router.createUrlTree([user.role === 'CARPENTER' ? '/admin' : '/customer'])));
 };
 

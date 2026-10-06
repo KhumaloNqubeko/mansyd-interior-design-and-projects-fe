@@ -4,9 +4,14 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test"
+    "start": "ng serve carpenter-business-frontend",
+    "build": "ng build carpenter-business-frontend",
+    "test": "ng test carpenter-business-frontend",
+    "mobile:start": "node mobile/scripts/configure-api.mjs && ng serve mansyd-mobile --port 4300 --proxy-config mobile/proxy.conf.json",
+    "mobile:build": "node mobile/scripts/configure-api.mjs && ng build mansyd-mobile",
+    "mobile:android": "node mobile/scripts/configure-api.mjs --native && ng build mansyd-mobile && cap sync android",
+    "mobile:test": "node mobile/scripts/configure-api.mjs && ng test mansyd-mobile --watch=false --browsers=ChromeHeadless",
+    "mobile:start:local": "node mobile/scripts/configure-api.mjs && ng serve mansyd-mobile --port 4300 --proxy-config mobile/proxy.local.conf.json"
   },
   "dependencies": {
     "@angular/animations": "^20.2.0",
@@ -19,6 +24,11 @@
     "@angular/platform-browser": "^20.2.0",
     "@angular/platform-browser-dynamic": "^20.2.0",
     "@angular/router": "^20.2.0",
+    "@capacitor/android": "8.5.2",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/camera": "8.2.5",
+    "@capacitor/core": "8.5.2",
+    "@ionic/angular": "8.8.19",
     "rxjs": "~7.8.2",
     "tslib": "^2.8.1",
     "zone.js": "~0.15.1"
@@ -27,6 +37,7 @@
     "@angular-devkit/build-angular": "^20.2.0",
     "@angular/cli": "^20.2.0",
     "@angular/compiler-cli": "^20.2.0",
+    "@capacitor/cli": "8.5.2",
     "@types/jasmine": "~5.1.8",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.4",
@@ -37,4 +48,3 @@
     "typescript": "~5.9.2"
   }
 }
-

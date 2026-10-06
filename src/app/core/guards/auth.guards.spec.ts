@@ -3,7 +3,7 @@ import { Router, provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CurrentUser } from '../models/auth.models';
-import { authGuard, carpenterGuard, customerGuard } from './auth.guards';
+import { authGuard, carpenterGuard, customerGuard, loginGuard } from './auth.guards';
 
 describe('authentication guards', () => {
   const users = new BehaviorSubject<CurrentUser | null>(null);
@@ -26,6 +26,24 @@ describe('authentication guards', () => {
         (carpenterGuard({} as never, {} as never) as import('rxjs').Observable<unknown>).subscribe(denied => {
           expect(denied).not.toBeTrue(); done();
         });
+      });
+    });
+  });
+  it('sends business users to the admin backoffice after login', done => {
+    users.next({ id: '2', email: 'owner@example.com', role: 'CARPENTER', displayName: 'Owner' });
+    TestBed.runInInjectionContext(() => {
+      (loginGuard({} as never, {} as never) as import('rxjs').Observable<unknown>).subscribe(value => {
+        expect(TestBed.inject(Router).serializeUrl(value as import('@angular/router').UrlTree)).toBe('/admin');
+        done();
+      });
+    });
+  });
+
+  it('allows the business owner into the backoffice', done => {
+    users.next({ id: '2', email: 'owner@example.com', role: 'CARPENTER', displayName: 'Owner' });
+    TestBed.runInInjectionContext(() => {
+      (carpenterGuard({} as never, {} as never) as import('rxjs').Observable<unknown>).subscribe(value => {
+        expect(value).toBeTrue(); done();
       });
     });
   });

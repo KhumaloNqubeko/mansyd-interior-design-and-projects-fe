@@ -9,6 +9,10 @@ export interface Project {
   customerId: string;
   customerName: string;
   status: ProjectStatus;
+  completionReviewStatus?: 'NOT_REQUESTED' | 'PENDING_REVIEW' | 'ISSUE_REPORTED' | 'CONFIRMED';
+  completionReviewId?: string | null;
+  customerConfirmedAt?: string | null;
+  customerConfirmedBy?: string | null;
   progress: number;
   plannedStartDate?: string | null;
   plannedCompletionDate?: string | null;
@@ -27,6 +31,10 @@ export interface ProjectUpdateRequest {
 
 export interface ProjectStatusUpdateRequest {
   status: ProjectStatus;
+  completionReviewStatus?: 'NOT_REQUESTED' | 'PENDING_REVIEW' | 'ISSUE_REPORTED' | 'CONFIRMED';
+  completionReviewId?: string | null;
+  customerConfirmedAt?: string | null;
+  customerConfirmedBy?: string | null;
   progress?: number;
   actualCompletionDate?: string | null;
 }

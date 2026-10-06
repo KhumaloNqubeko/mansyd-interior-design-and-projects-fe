@@ -19,10 +19,11 @@ export const routes: Routes = [
     children: [{ path: '', loadChildren: () => import('./features/dashboard/customer.routes').then(m => m.CUSTOMER_ROUTES) }]
   },
   {
-    path: 'carpenter', canActivate: [authGuard, carpenterGuard],
+    path: 'admin', canActivate: [authGuard, carpenterGuard],
     loadComponent: () => import('./core/layout/portal-layout.component').then(m => m.PortalLayoutComponent),
     data: { role: 'CARPENTER' },
     children: [{ path: '', loadChildren: () => import('./features/dashboard/carpenter.routes').then(m => m.CARPENTER_ROUTES) }]
   },
+  { path: 'carpenter', redirectTo: 'admin' },
   { path: '**', loadComponent: () => import('./features/authentication/not-found.component').then(m => m.NotFoundComponent) }
 ];
