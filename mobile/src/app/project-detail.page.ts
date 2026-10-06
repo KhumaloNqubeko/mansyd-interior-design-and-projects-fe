@@ -24,6 +24,9 @@ import { PrivatePhotoComponent } from './private-photo.component';
       </section>
     } @else if (p.completionReviewStatus === 'CONFIRMED') { <p class="success">Completion confirmed {{ p.customerConfirmedAt | date:'mediumDate' }}.</p> }
     @else if (p.completionReviewStatus === 'ISSUE_REPORTED') { <p class="review-card">Your issue has been sent to Mansyd. You can add supporting photos and comments below.</p> }
+    @else if (p.status === 'INSTALLED') {
+      <section class="review-card"><h2>Waiting for completion review</h2><p>Mansyd needs to request your completion review. Once requested, refresh this project to confirm the finished work or report an issue.</p><p>Comments and photos below share feedback; they do not confirm completion.</p><ion-button fill="outline" (click)="load()" [disabled]="busy()">Refresh project</ion-button></section>
+    }
     @if (p.status !== 'CANCELLED') {
       <section class="outline-card"><h2>Share an update</h2><form (ngSubmit)="comment()"><label for="comment">Comment</label><textarea id="comment" [(ngModel)]="message" name="comment" maxlength="2000" placeholder="Ask a question or share feedback"></textarea><ion-button type="submit" [disabled]="busy() || !message.trim()">Send comment</ion-button></form>
         <label for="project-photo">Project photo</label><input id="project-photo" type="file" accept="image/jpeg,image/png" (change)="selectPhoto($event)" [disabled]="busy()">

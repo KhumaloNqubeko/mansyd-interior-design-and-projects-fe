@@ -49,7 +49,7 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
                   <strong>Customer completion review</strong>
                   @if (project.completionReviewStatus === 'PENDING_REVIEW') { <p>Waiting for the customer to confirm the work or report an issue.</p> }
                   @else if (project.completionReviewStatus === 'ISSUE_REPORTED') { <p>The customer reported an issue. Review their feedback below, resolve it, then request another review.</p> }
-                  @else { <p>Send the installed work to the customer for confirmation.</p> }
+                  @else { <p>Request a completion review so the customer can confirm the installed work or report an issue. Their confirmation completes the project automatically; comments and photos do not count as approval.</p> }
                   @if (project.completionReviewStatus !== 'PENDING_REVIEW') { <button type="button" class="primary-button compact" (click)="requestReview(project)" [disabled]="reviewBusy()">Request customer review</button> }
                 </section>
               }
@@ -58,7 +58,7 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
               <section class="next-step-panel">
                 <div>
                   <strong>Next step</strong>
-                  <p class="muted">Choose one valid move. Progress and dates update automatically.</p>
+                  <p class="muted">{{ project.status === 'INSTALLED' ? 'Use the customer completion review above. The project completes automatically when the customer confirms.' : 'Choose one valid move. Progress and dates update automatically.' }}</p>
                 </div>
                 <div class="status-step-actions">
                   @for (status of nextStatuses(project); track status) {
