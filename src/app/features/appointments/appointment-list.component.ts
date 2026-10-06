@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Appointment, AppointmentStatus, AppointmentType } from '../../core/models/appointment.models';
@@ -54,16 +55,18 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
             <div>
               <label for="serviceRequestId">Service request</label>
               <select id="serviceRequestId" formControlName="serviceRequestId">
-                <option value="">None</option>
-                @for (request of serviceRequests(); track request.id) { <option [value]="request.id">{{ request.title }}</option> }
+                <option value="">{{ selectedCustomerId() ? 'None (optional)' : 'Select a customer first' }}</option>
+                @for (request of customerRequests(); track request.id) { <option [value]="request.id">{{ request.title }}</option> }
               </select>
+              @if (selectedCustomerId() && !customerRequests().length) { <span class="hint">No requests available for this customer.</span> }
             </div>
             <div>
               <label for="projectId">Project</label>
               <select id="projectId" formControlName="projectId">
-                <option value="">None</option>
-                @for (project of projects(); track project.id) { <option [value]="project.id">{{ project.projectNumber }}</option> }
+                <option value="">{{ selectedCustomerId() ? 'None (optional)' : 'Select a customer first' }}</option>
+                @for (project of customerProjects(); track project.id) { <option [value]="project.id">{{ project.projectNumber }}</option> }
               </select>
+              @if (selectedCustomerId() && !customerProjects().length) { <span class="hint">No projects available for this customer.</span> }
             </div>
             <div>
               <label for="location">Location</label>
@@ -121,6 +124,9 @@ export class AppointmentListComponent implements OnInit {
   readonly customers = signal<CustomerProfile[]>([]);
   readonly serviceRequests = signal<ServiceRequest[]>([]);
   readonly projects = signal<Project[]>([]);
+  readonly selectedCustomerId = signal('');
+  readonly customerRequests = computed(() => this.serviceRequests().filter(request => request.customerId === this.selectedCustomerId()));
+  readonly customerProjects = computed(() => this.projects().filter(project => project.customerId === this.selectedCustomerId()));
   readonly editingId = signal<string | null>(null);
   readonly types: AppointmentType[] = ['SITE_VISIT', 'MEASUREMENT', 'DESIGN_REVIEW', 'INSTALLATION', 'FOLLOW_UP', 'OTHER'];
   readonly statuses: AppointmentStatus[] = ['SCHEDULED', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
@@ -135,6 +141,14 @@ export class AppointmentListComponent implements OnInit {
     serviceRequestId: [''],
     projectId: ['']
   });
+
+  constructor() {
+    this.appointmentForm.controls.customerId.valueChanges.pipe(takeUntilDestroyed()).subscribe(customerId => {
+      if (customerId === this.selectedCustomerId()) return;
+      this.selectedCustomerId.set(customerId);
+      this.appointmentForm.patchValue({ serviceRequestId: '', projectId: '' });
+    });
+  }
 
   ngOnInit(): void {
     this.carpenterMode.set(this.route.snapshot.data['scope'] === 'carpenter');
@@ -156,6 +170,7 @@ export class AppointmentListComponent implements OnInit {
 
   edit(appointment: Appointment): void {
     this.editingId.set(appointment.id);
+    this.selectedCustomerId.set(appointment.customerId);
     this.appointmentForm.reset({
       title: appointment.title,
       type: appointment.type,
