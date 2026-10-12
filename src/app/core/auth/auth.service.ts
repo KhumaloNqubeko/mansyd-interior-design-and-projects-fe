@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CurrentUser, LoginRequest, RegistrationRequest, SessionResponse, UserRole } from '../models/auth.models';
 import { CsrfTokenStore } from './csrf-token.store';
@@ -49,7 +49,10 @@ export class AuthService {
     return this.http.get<SessionResponse>(`${this.url}/session`).pipe(
       tap(user => this.userState.next(user)),
       map(user => user as CurrentUser),
-      catchError(() => { this.clearSession(); return of(null); })
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) { this.clearSession(); return of(null); }
+        return throwError(() => error);
+      })
     );
   }
 

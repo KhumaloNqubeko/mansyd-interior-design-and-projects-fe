@@ -29,6 +29,14 @@ describe('AuthService', () => {
     request.flush({ token: 'csrf-value' });
   });
 
+  it('preserves the signed-in user when a session check temporarily fails', () => {
+    service.login({ email: user.email, password: 'password' }).subscribe();
+    http.expectOne(`${environment.apiBaseUrl}/auth/login`).flush(user);
+    service.loadSession().subscribe({ next: () => fail('Expected the connection error'), error: error => expect(error.status).toBe(503) });
+    http.expectOne(`${environment.apiBaseUrl}/auth/session`).flush({}, { status: 503, statusText: 'Service Unavailable' });
+    expect(service.currentUser).toEqual(user);
+  });
+
   it('clears state when session restoration is unauthorized', () => {
     service.loadSession().subscribe(result => expect(result).toBeNull());
     http.expectOne(`${environment.apiBaseUrl}/auth/session`).flush({}, { status: 401, statusText: 'Unauthorized' });
