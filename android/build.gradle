@@ -41,12 +41,16 @@ tasks.register('printDebugApkPath') {
 
 project(':app').afterEvaluate { appProject ->
     def sourceAssets = new File(appProject.projectDir, 'src/main/assets')
+    def webAssets = new File(rootProject.projectDir, '../dist/mansyd-mobile/browser')
     def stagedAssets = new File(nativeBuildRoot, 'staged-assets')
     def prepareAssets = appProject.tasks.register('prepareMansydAssets') {
         // Java's Gradle snapshotter rejects OneDrive cloud reparse points even
         // when their bytes are readable. Stream them to ordinary local files.
         doNotTrackState('Refresh generated Capacitor assets outside OneDrive')
         doLast {
+            if (!new File(webAssets, 'index.html').isFile()) {
+                throw new GradleException('Mobile web build is missing. Run npm run mobile:android before building the APK.')
+            }
             if (!stagedAssets.canonicalPath.startsWith(nativeBuildRoot.canonicalPath + File.separator)) {
                 throw new GradleException('Asset staging directory must stay inside the local build cache')
             }
@@ -62,7 +66,18 @@ project(':app').afterEvaluate { appProject ->
                     destination.setLastModified(source.lastModified())
                 }
             }
-            copyFiles(sourceAssets, stagedAssets)
+            // Capacitor's public copy can retain stale OneDrive entries after
+            // hashed bundles change. Stage application files from the web build.
+            sourceAssets.listFiles()?.findAll { it.name != 'public' }?.each { child ->
+                copyFiles(child, new File(stagedAssets, child.name))
+            }
+            def stagedPublic = new File(stagedAssets, 'public')
+            copyFiles(webAssets, stagedPublic)
+            // Capacitor generates these shims during sync, outside the web build.
+            ['cordova.js', 'cordova_plugins.js', 'plugins'].each { name ->
+                def nativeAsset = new File(sourceAssets, "public/${name}")
+                if (nativeAsset.exists()) copyFiles(nativeAsset, new File(stagedPublic, name))
+            }
         }
     }
     appProject.extensions.getByName('android').sourceSets.getByName('main').assets.setSrcDirs([stagedAssets])
