@@ -41,7 +41,7 @@ import { ValidationMessageComponent } from '../../shared/components/validation-m
               <span>Completed: {{ project.actualCompletionDate || 'Not yet' }}</span>
             </div>
             @if (project.notes) { <p>{{ project.notes }}</p> }
-            @if (mobileDetail) { <a class="primary-button compact" [routerLink]="['/customer/projects', project.id]">Conversation, photos & completion review</a> }
+            @if (mobileDetail) { <a class="primary-button compact project-detail-link" [routerLink]="['/customer/projects', project.id]">Conversation, photos & completion review</a> }
 
             @if (carpenterMode()) {
               @if (project.status === 'INSTALLED') {
